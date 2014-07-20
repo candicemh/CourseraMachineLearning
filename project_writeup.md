@@ -74,37 +74,37 @@ pred_rf1<-predict(modelfit_rf1, testpred)
 confusionMatrix(pred_rf1,subset_test$classe)
 </code></pre>
 
-Confusion Matrix and Statistics
-
-          Reference
-Prediction    A    B    C    D    E
-         A 1362   25    8    8    6
-         B    8  891   18    1    2
-         C   13   20  813   34    3
-         D    8    7   12  758   15
-         E    4    6    4    3  875
-
-Overall Statistics
-                                          
-               Accuracy : 0.9582          
-                 95% CI : (0.9522, 0.9636)
-    No Information Rate : 0.2845          
-    P-Value [Acc > NIR] : < 2.2e-16       
-                                          
-                  Kappa : 0.9471          
- Mcnemar's Test P-Value : 9.79e-05        
-
-Statistics by Class:
-
-                     Class: A Class: B Class: C Class: D Class: E
-Sensitivity            0.9763   0.9389   0.9509   0.9428   0.9711
-Specificity            0.9866   0.9927   0.9827   0.9898   0.9958
-Pos Pred Value         0.9666   0.9685   0.9207   0.9475   0.9809
-Neg Pred Value         0.9906   0.9854   0.9896   0.9888   0.9935
-Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
-Detection Rate         0.2777   0.1817   0.1658   0.1546   0.1784
-Detection Prevalence   0.2873   0.1876   0.1801   0.1631   0.1819
-Balanced Accuracy      0.9815   0.9658   0.9668   0.9663   0.9834
+>Confusion Matrix and Statistics
+>
+>          Reference
+>Prediction    A    B    C    D    E
+>         A 1362   25    8    8    6
+>         B    8  891   18    1    2
+>         C   13   20  813   34    3
+>         D    8    7   12  758   15
+>         E    4    6    4    3  875
+>
+>Overall Statistics
+>                                          
+>               Accuracy : 0.9582          
+>                 95% CI : (0.9522, 0.9636)
+>    No Information Rate : 0.2845          
+>    P-Value [Acc > NIR] : < 2.2e-16       
+>                                          
+>                  Kappa : 0.9471          
+> Mcnemar's Test P-Value : 9.79e-05        
+>
+>Statistics by Class:
+>
+>                     Class: A Class: B Class: C Class: D Class: E
+>Sensitivity            0.9763   0.9389   0.9509   0.9428   0.9711
+>Specificity            0.9866   0.9927   0.9827   0.9898   0.9958
+>Pos Pred Value         0.9666   0.9685   0.9207   0.9475   0.9809
+>Neg Pred Value         0.9906   0.9854   0.9896   0.9888   0.9935
+>Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
+>Detection Rate         0.2777   0.1817   0.1658   0.1546   0.1784
+>Detection Prevalence   0.2873   0.1876   0.1801   0.1631   0.1819
+>Balanced Accuracy      0.9815   0.9658   0.9668   0.9663   0.9834
 
 This implies that the out of sample error will be approximately 95.82%. We now apply the prediction model to the project dataset to predict the outcomes.
 <pre><code>
@@ -112,7 +112,11 @@ projectpred<-predict(preProc_train,data_test[,-54])
 project<-predict(modelfit_rf1, projectpred)
 </code></pre>
 
-Project now contains the 20 predictions, which in order are: B A A A A E D B A A B C B A E E A B B B. The remainder of the code simply writes these predictions to text files for uploading for assessment.
+Project now contains the 20 predictions, which in order are: 
+
+>B A A A A E D B A A B C B A E E A B B B. 
+
+The remainder of the code simply writes these predictions to text files for uploading for assessment.
 <pre><code>
 pml_write_files = function(x){
   n = length(x)

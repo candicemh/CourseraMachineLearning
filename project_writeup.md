@@ -1,13 +1,10 @@
-Coursera Project Write-up
+#Coursera Project Write-up
 
-## Secondary
-### Tertiary
-
-### Background to the Project
+## Background to the Project
 
 Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset). 
 
-### Data for the Project
+## Data for the Project
 
 The training data for this project are available here: 
 
@@ -19,21 +16,20 @@ https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
 
 The data for this project come from this source: http://groupware.les.inf.puc-rio.br/har.
 
-### Goals of the Project 
+## Goals of the Project 
 
 The goal of this project is to predict the manner in which they did the exercise. This is the "classe" variable in the training set. Other variables are used to predict "classe". This report describes how I built the prediction model, how cross validation was used, what the expected out of sample error is, and why I made the choices I did. The prediction model is used to predict 20 different test cases. 
 
-### R code for prediction
-#set working directory
+## R code for prediction
+###set working directory
 setwd("/Users/Candice/Desktop")
 
-#load libraries
+###load libraries
 library(caret)
 library(kernlab)
 library(rpart)
 
-## Read and clean data
-#read in data
+### read in data
 filename_test<-"pml-testing.csv"
 filename_train<-"pml-training.csv"
 url_test<-"https://d396qusza40orc.cloudfront.net/predmachlearn/pml-test.csv"
@@ -48,31 +44,31 @@ data_test<-read.csv(filename_test, header=TRUE,sep=",")
 data_train<-read.csv(filename_train, header=TRUE,sep=",")
 
 
-#delete empty or almost empty columns, and identifying columns that cannot explain the response (such as time)
+### delete empty or almost empty columns, and identifying columns that cannot explain the response (such as time)
 throwcols<-grep("avg|stddev|var|min|max|amplitude|skewness|kurtosis|timestamp|user_name|new_window",names(data_test),value=FALSE)
 data_test<-data_test[,-throwcols]
 throwcols<-grep("avg|stddev|var|min|max|amplitude|skewness|kurtosis|timestamp|user_name|new_window",names(data_train),value=FALSE)
 data_train<-data_train[,-throwcols]
 
-#get rid of the index row
+### get rid of the index row
 data_test[,1]<-NULL
 data_train[,1]<-NULL
 
-#subset the training into train and test, 75% of the training data is used to build the model, and 25% is used to #validate the model, and to estimate the out of sample error
+### subset the training into train and test, 75% of the training data is used to build the model, and 25% is used to validate the model, and to estimate the out of sample error
 inTrain<-createDataPartition(y=data_train$classe,p=0.75,list=FALSE)
 subset_train<-data_train[inTrain,]
 subset_test<-data_train[-inTrain,]
 
-#PCA for dimension reduction - chosen because 53 explanatory variables is too large to be practical, and it is obvious #from the names of the variables that we expect them to be related and highly correlated. The scree plot from the PCA #shows us that the first 10 components explains 95% of the information in the original training data subset, and the #principle of parsimony suggests that this is sufficient for prediction purposes to prevent overfitting.
+### PCA for dimension reduction - chosen because 53 explanatory variables is too large to be practical, and it is obvious from the names of the variables that we expect them to be related and highly correlated. The scree plot from the PCA shows us that the first 10 components explains 95% of the information in the original training data subset, and the principle of parsimony suggests that this is sufficient for prediction purposes to prevent overfitting.
 preProc_train<-preProcess(subset_train[,-54],method="pca",pcaComp=10)
 trainpred<-predict(preProc_train,subset_train[,-54])
 testpred<-predict(preProc_train,subset_test[,-54])
 
-## Build the prediction model using Random Forests
+### Build the prediction model using Random Forests
 modelfit_rf1<-train(x=trainpred,y=subset_train$classe,method="rf")
 pred_rf1<-predict(modelfit_rf1, testpred)
 
-## Output of the prediction
+### Output of the prediction
 confusionMatrix(pred_rf1,subset_test$classe)
 
 Confusion Matrix and Statistics
@@ -109,13 +105,13 @@ Balanced Accuracy      0.9815   0.9658   0.9668   0.9663   0.9834
 
 This implies that the out of sample error will be approximately 95.82%. This figures is obtained by using the prediction model on the subset of the training data set aside for validation, called subset_test.
 
-## Predict for the project
+### Predict for the project
 projectpred<-predict(preProc_train,data_test[,-54])
 project<-predict(modelfit_rf1, projectpred)
 
 Project now contains the 20 predictions, which in order are: B A A A A E D B A A B C B A E E A B B B
 
-#function to write files for project submission
+###function to write files for project submission
 pml_write_files = function(x){
   n = length(x)
   for(i in 1:n){
@@ -123,8 +119,6 @@ pml_write_files = function(x){
     write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
   }
 }
-
-#write files for project submission
 pml_write_files(project)
 
 

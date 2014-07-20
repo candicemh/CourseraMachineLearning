@@ -21,15 +21,15 @@ The data for this project come from this source: http://groupware.les.inf.puc-ri
 The goal of this project is to predict the manner in which they did the exercise. This is the "classe" variable in the training set. Other variables are used to predict "classe". This report describes how I built the prediction model, how cross validation was used, what the expected out of sample error is, and why I made the choices I did. The prediction model is used to predict 20 different test cases. 
 
 ## R code for prediction
-set working directory
-	setwd("/Users/Candice/Desktop")
 
-load libraries
-	library(caret)
-	library(kernlab)
-	library(rpart)
+Set working directory and load libraries. Read in the data. Then, delete empty or almost empty columns, and identifying columns that cannot explain the response (such as time).
+<pre><code>
+setwd("/Users/Candice/Desktop")
 
-### read in data
+library(caret)
+library(kernlab)
+library(rpart)
+
 filename_test<-"pml-testing.csv"
 filename_train<-"pml-training.csv"
 url_test<-"https://d396qusza40orc.cloudfront.net/predmachlearn/pml-test.csv"
@@ -43,33 +43,36 @@ if (!file.exists(filename_train)) {
 data_test<-read.csv(filename_test, header=TRUE,sep=",")
 data_train<-read.csv(filename_train, header=TRUE,sep=",")
 
-
-### delete empty or almost empty columns, and identifying columns that cannot explain the response (such as time)
 throwcols<-grep("avg|stddev|var|min|max|amplitude|skewness|kurtosis|timestamp|user_name|new_window",names(data_test),value=FALSE)
 data_test<-data_test[,-throwcols]
 throwcols<-grep("avg|stddev|var|min|max|amplitude|skewness|kurtosis|timestamp|user_name|new_window",names(data_train),value=FALSE)
 data_train<-data_train[,-throwcols]
 
-### get rid of the index row
 data_test[,1]<-NULL
 data_train[,1]<-NULL
+</code></pre>
 
-### subset the training into train and test, 75% of the training data is used to build the model, and 25% is used to validate the model, and to estimate the out of sample error
+
+Now that we are working with clean data, subset the training into train and test, 75% of the training data is used to build the model, and 25% is used to  validate the model, and to estimate the out of sample error
+<pre><code>
 inTrain<-createDataPartition(y=data_train$classe,p=0.75,list=FALSE)
 subset_train<-data_train[inTrain,]
 subset_test<-data_train[-inTrain,]
+</code></pre>
 
-### PCA for dimension reduction - chosen because 53 explanatory variables is too large to be practical, and it is obvious from the names of the variables that we expect them to be related and highly correlated. The scree plot from the PCA shows us that the first 10 components explains 95% of the information in the original training data subset, and the principle of parsimony suggests that this is sufficient for prediction purposes to prevent overfitting.
+PCA is for dimension reduction - chosen because 53 explanatory variables is too large to be practical, and it is obvious from the names of the variables that we expect them to be related and highly correlated. The scree plot from the PCA shows us that the first 10 components explains 95% of the information in the original training data subset, and the principle of parsimony suggests that this is sufficient for prediction purposes to prevent overfitting.
+<pre><code>
 preProc_train<-preProcess(subset_train[,-54],method="pca",pcaComp=10)
 trainpred<-predict(preProc_train,subset_train[,-54])
 testpred<-predict(preProc_train,subset_test[,-54])
+</code></pre>
 
-### Build the prediction model using Random Forests
+Since the outcome is categorical and the explanatory variables are all continuous random variables, the prediction model is built using Random Forests using the subsetting training data. The model is then applied to the subsetted testing data to estimate the confusion matrix and consequently the expected out of sample error rate.
+<pre><code>
 modelfit_rf1<-train(x=trainpred,y=subset_train$classe,method="rf")
 pred_rf1<-predict(modelfit_rf1, testpred)
-
-### Output of the prediction
 confusionMatrix(pred_rf1,subset_test$classe)
+</code></pre>
 
 Confusion Matrix and Statistics
 
@@ -103,15 +106,14 @@ Detection Rate         0.2777   0.1817   0.1658   0.1546   0.1784
 Detection Prevalence   0.2873   0.1876   0.1801   0.1631   0.1819
 Balanced Accuracy      0.9815   0.9658   0.9668   0.9663   0.9834
 
-This implies that the out of sample error will be approximately 95.82%. This figures is obtained by using the prediction model on the subset of the training data set aside for validation, called subset_test.
-
-### Predict for the project
+This implies that the out of sample error will be approximately 95.82%. We now apply the prediction model to the project dataset to predict the outcomes.
+<pre><code>
 projectpred<-predict(preProc_train,data_test[,-54])
 project<-predict(modelfit_rf1, projectpred)
+</code></pre>
 
-Project now contains the 20 predictions, which in order are: B A A A A E D B A A B C B A E E A B B B
-
-###function to write files for project submission
+Project now contains the 20 predictions, which in order are: B A A A A E D B A A B C B A E E A B B B. The remainder of the code simply writes these predictions to text files for uploading for assessment.
+<pre><code>
 pml_write_files = function(x){
   n = length(x)
   for(i in 1:n){
@@ -120,5 +122,4 @@ pml_write_files = function(x){
   }
 }
 pml_write_files(project)
-
-
+</code></pre>

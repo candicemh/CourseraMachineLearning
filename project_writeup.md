@@ -21,13 +21,13 @@ The data for this project come from this source: http://groupware.les.inf.puc-ri
 The goal of this project is to predict the manner in which they did the exercise. This is the "classe" variable in the training set. Other variables are used to predict "classe". This report describes how I built the prediction model, how cross validation was used, what the expected out of sample error is, and why I made the choices I did. The prediction model is used to predict 20 different test cases. 
 
 ## R code for prediction
-###set working directory
-setwd("/Users/Candice/Desktop")
+set working directory
+	setwd("/Users/Candice/Desktop")
 
-###load libraries
-library(caret)
-library(kernlab)
-library(rpart)
+load libraries
+	library(caret)
+	library(kernlab)
+	library(rpart)
 
 ### read in data
 filename_test<-"pml-testing.csv"
